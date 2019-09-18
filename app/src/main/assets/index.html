@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style type="text/css">
+    #editor {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    };
+  </style>
+</head>
+<body>
+<div id="editor">some text</div>
+<script src="./ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="./ace-builds/src-noconflict/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+  var editor = ace.edit("editor");
+  editor.setOptions({
+    enableBasicAutocompletion: true,
+    enableSnippets: true,
+    enableLiveAutocompletion: true
+  });
+
+  function fetchContent() {
+    return editor.getValue();
+  }
+
+  function setText(content) {
+    editor.setValue(content);
+  }
+
+  function setFileType(type) {
+    type = "ace/mode/" + type;
+    editor.getSession().setMode(type);
+  }
+</script>
+</body>
+</html>
