@@ -56,7 +56,20 @@ public class AceEditorView extends WebView {
   private String cleanContent() {
     int length = this.content.length();
     String tmp = this.content.substring(1, length - 1);
-    // \\n -> \N
+    // \\n -> \n , \n -> line_separator
+    tmp = this.cleanNewLine(tmp);
+    // \" -> ", \' -> '
+    tmp = this.cleanQuote(tmp);
+    return tmp;
+  }
+
+  private String cleanQuote(String tmp) {
+    String regDoubleQuote = Pattern.quote("\\\"");
+    String regSingleQuote = Pattern.quote("\\\'");
+    return tmp.replaceAll(regDoubleQuote, "\"").replaceAll(regSingleQuote, "\'");
+  }
+
+  private String cleanNewLine(String tmp) {
     String reg = Pattern.quote("\\\\n");
     tmp = tmp.replaceAll(reg, "\\\\N");
     // \n -> line_separator

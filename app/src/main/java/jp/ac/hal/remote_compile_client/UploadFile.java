@@ -28,7 +28,7 @@ public class UploadFile {
     this.cacheDir = cache;
   }
 
-  public File getGzFile() {
+  File getGzFile() {
     return this.gzFile;
   }
 

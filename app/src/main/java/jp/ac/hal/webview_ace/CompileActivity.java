@@ -10,11 +10,10 @@ import android.widget.Toast;
 
 import jp.ac.hal.remote_compile_client.AsyncCompileRequest;
 import jp.ac.hal.remote_compile_client.CacheDir;
-import jp.ac.hal.remote_compile_client.UploadFile;
 
 public class CompileActivity extends AppCompatActivity {
 
-  private static final String
+  public static final String
       CHARSET = "UTF-8",
       SERVER_PROTOCOL = "http://",
       SERVER_IP_ADDRESS = SERVER_PROTOCOL + "10.0.2.2",
