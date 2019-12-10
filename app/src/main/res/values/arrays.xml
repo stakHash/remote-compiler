@@ -3,10 +3,10 @@
     <!-- birthday_permission -->
     <string-array name="file_type_data">
         <!-- toDo: 要素追加したらこっちも追加 -->
-        <item>@array/file_type_clang</item>
+<!--        <item>@array/file_type_clang</item>-->
         <item>@array/file_type_java</item>
         <item>@array/file_type_go</item>
-        <item>@array/file_type_kotlin</item>
+<!--        <item>@array/file_type_kotlin</item>-->
     </string-array>
 
     <string-array name="file_type_clang">

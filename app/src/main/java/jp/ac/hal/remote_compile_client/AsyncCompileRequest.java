@@ -2,6 +2,7 @@ package jp.ac.hal.remote_compile_client;
 
 import android.app.Activity;
 import android.os.AsyncTask;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ public class AsyncCompileRequest extends AsyncTask<Void, Void, String> {
   private String charset;
   private UploadFile uploadFile;
   private String fileType;
+  private TextView resultTv;
   private Activity activity;
   private PostMultipart postMultipart;
   private String content;
@@ -73,7 +75,12 @@ public class AsyncCompileRequest extends AsyncTask<Void, Void, String> {
   protected void onPostExecute(String response) {
     super.onPostExecute(response);
     // do something after getting response
-    Toast.makeText(activity, response, Toast.LENGTH_SHORT).show();
+//    Toast.makeText(activity, response, Toast.LENGTH_SHORT).show();
+    this.resultTv.setText(response);
+  }
+
+  public void setResultTextView(TextView tv) {
+    this.resultTv = tv;
   }
 
   private String postGzWithOkhttp(String fileType, UploadFile uploadFile) throws Exception {

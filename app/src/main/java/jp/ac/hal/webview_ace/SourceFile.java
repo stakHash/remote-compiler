@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.HashMap;
 
 public class SourceFile {
 
@@ -16,8 +17,10 @@ public class SourceFile {
   private SourceDir sourceDir;
   private String content;
   private String fileType;
+  private HashMap<String, String> fileExt;
 
   public SourceFile(SourceDir sourceDir, String fileType, String content) {
+    this.generateFileExt();
     this.setSourceDir(sourceDir);
     this.setContent(content);
     this.setFileType(fileType);
@@ -25,7 +28,15 @@ public class SourceFile {
   }
 
   public SourceFile(String path) {
+    this.generateFileExt();
     this.sourceFile = new File(path);
+  }
+
+  private void generateFileExt() {
+    this.fileExt = new HashMap<>();
+    this.fileExt.put("golang", "go");
+    this.fileExt.put("java", "java");
+    this.fileExt.put("c_cpp", "cpp");
   }
 
   public String getFileType() {
@@ -39,7 +50,7 @@ public class SourceFile {
     try (
         FileInputStream inputStream = new FileInputStream(this.sourceFile);
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
-        ){
+    ) {
       while ((tmp = br.readLine()) != null) {
         str.append(tmp).append("\n");
       }
@@ -64,7 +75,7 @@ public class SourceFile {
   private void generateSourceFile() {
     Date d = new Date();
     long unixTime = d.getTime();
-    String fileName = unixTime + "." + this.fileType;
+    String fileName = unixTime + "." + this.fileExt.get(this.fileType);
     this.sourceFile = new File(this.sourceDir.getPath(), fileName);
   }
 

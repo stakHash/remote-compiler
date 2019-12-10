@@ -19,7 +19,6 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-  TextView tv;
   AceEditorView aceView;
   String fileTypeName;
   String filePath;
@@ -30,11 +29,6 @@ public class MainActivity extends AppCompatActivity {
       COMPILE_REQUEST_CODE = 2,
       SAVE_FILE_CODE = 3;
 
-  public void checkPermission() {
-    if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-      this.requestStoragePermission();
-    }
-  }
 
   private void requestStoragePermission() {
     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -56,20 +50,31 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
+  public boolean havePermission() {
+    return ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+  }
+
   @SuppressLint("SetJavaScriptEnabled")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    this.checkPermission();
+    if (!this.havePermission()) {
+      requestStoragePermission();
+    }
 
-    final Button bt = findViewById(R.id.button);
-    this.tv = findViewById(R.id.textView);
+    final Button saveRunBtn = findViewById(R.id.save_run_button);
+    final Button fileBtn = findViewById(R.id.file_btn);
+    fileBtn.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        // ファイル形式の選択 or 既存のファイルを開く
+        Intent openIntent = new Intent(MainActivity.this, OpenActivity.class);
+        startActivityForResult(openIntent, OPEN_REQUEST_CODE);
+      }
+    });
 
-    // ファイル形式の選択 or 既存のファイルを開く
-    Intent openIntent = new Intent(this, OpenActivity.class);
-    startActivityForResult(openIntent, OPEN_REQUEST_CODE);
 
     this.aceView = findViewById(R.id.aceEditorWv);
 
@@ -77,20 +82,22 @@ public class MainActivity extends AppCompatActivity {
       @Override
       public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
-        bt.setOnClickListener(new View.OnClickListener() {
+        saveRunBtn.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-            aceView.fetchContent();
-            // jsが非同期に実行されるため, 若干遅らせる
-            new Handler().postDelayed(new Runnable() {
-              @Override
-              public void run() {
-            Intent compileIntent = new Intent(MainActivity.this, CompileActivity.class);
-            compileIntent.putExtra("content", aceView.getContent());
-            compileIntent.putExtra("fileType", fileTypeName);
-            startActivityForResult(compileIntent, COMPILE_REQUEST_CODE);
-              }
-            }, 500);
+            if (fileTypeName != null && !fileTypeName.isEmpty() && !fileTypeName.equals("ERROR")) {
+              aceView.fetchContent();
+              // jsが非同期に実行されるため, 若干遅らせる
+              new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                  Intent compileIntent = new Intent(MainActivity.this, CompileActivity.class);
+                  compileIntent.putExtra("content", aceView.getContent());
+                  compileIntent.putExtra("fileType", fileTypeName);
+                  startActivityForResult(compileIntent, COMPILE_REQUEST_CODE);
+                }
+              }, 500);
+            }
           }
         });
       }
@@ -123,8 +130,6 @@ public class MainActivity extends AppCompatActivity {
       default:
         break;
     }
-    String msg = this.fileTypeName + ": " + this.filePath;
-    this.tv.setText(msg);
     if (!this.fileTypeName.equals("ERROR")) {
       this.aceView.setFileType(this.fileTypeName);
     }

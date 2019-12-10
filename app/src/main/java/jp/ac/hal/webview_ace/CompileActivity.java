@@ -19,7 +19,7 @@ public class CompileActivity extends AppCompatActivity {
       SERVER_IP_ADDRESS = SERVER_PROTOCOL + "10.0.2.2",
       SERVER_PORT = ":8888",
       SERVER_PING_URL = SERVER_IP_ADDRESS + SERVER_PORT + "/ping",
-      SERVER_COMPILE_URL = SERVER_IP_ADDRESS + SERVER_PORT + "/compile";
+      SERVER_COMPILE_URL = SERVER_IP_ADDRESS + SERVER_PORT + "/exec";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -30,10 +30,10 @@ public class CompileActivity extends AppCompatActivity {
     final String content = intent.getStringExtra("content");
     final String fileType = intent.getStringExtra("fileType");
 
-    final CacheDir cacheDir = new CacheDir(this);
 
     Button saveBtn = findViewById(R.id.save_button);
     Button runBtn = findViewById(R.id.run_button);
+    final TextView execResultTv = findViewById(R.id.exec_result);
 
     saveBtn.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -48,11 +48,14 @@ public class CompileActivity extends AppCompatActivity {
     runBtn.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
+//        CacheDir cacheDir = new CacheDir(CompileActivity.this);
 //        UploadFile uploadFile = new UploadFile(fileType, cacheDir);
 //        uploadFile.doZip(content);
 
 //        new AsyncCompileRequest(CompileActivity.this, SERVER_COMPILE_URL, uploadFile, fileType, CHARSET).execute();
-        new AsyncCompileRequest(CompileActivity.this, SERVER_COMPILE_URL, content, fileType, CHARSET).execute();
+        AsyncCompileRequest ac = new AsyncCompileRequest(CompileActivity.this, SERVER_COMPILE_URL, content, fileType, CHARSET);
+        ac.setResultTextView(execResultTv);
+        ac.execute();
 
         // debug (ping/pong)
 //        new AsyncCompileRequest(CompileActivity.this, SERVER_PING_URL, CHARSET).execute();

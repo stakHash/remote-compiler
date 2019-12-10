@@ -7,40 +7,32 @@
     android:weightSum="100"
     android:orientation="vertical">
 
-    <android.support.design.widget.TabLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1">
+        android:layout_weight="5"
+        android:weightSum="10"
+        android:orientation="horizontal">
 
-        <android.support.design.widget.TabItem
+        <Button
+            android:id="@+id/file_btn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tuesday" />
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            android:text="file" />
 
-        <android.support.design.widget.TabItem
+        <Button
+            android:id="@+id/save_run_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Wednesday" />
-    </android.support.design.widget.TabLayout>
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            android:text="save" />
+
+    </LinearLayout>
 
     <jp.ac.hal.webview_ace.AceEditorView
         android:id="@+id/aceEditorWv"
         android:layout_width="match_parent"
         android:layout_height="368dp"
-        android:layout_weight="59" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="20"
-        android:text="TextView" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="20"
-        android:text="Button" />
-
+        android:layout_weight="95" />
 </LinearLayout>
