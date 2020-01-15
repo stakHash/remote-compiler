@@ -8,18 +8,19 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import jp.ac.hal.database.FileType;
 import jp.ac.hal.remote_compile_client.AsyncCompileRequest;
-import jp.ac.hal.remote_compile_client.CacheDir;
+//import jp.ac.hal.remote_compile_client.CacheDir;
 
 public class CompileActivity extends AppCompatActivity {
 
-  public static final String
-      CHARSET = "UTF-8",
-      SERVER_PROTOCOL = "http://",
-      SERVER_IP_ADDRESS = SERVER_PROTOCOL + "10.0.2.2",
-      SERVER_PORT = ":8888",
-      SERVER_PING_URL = SERVER_IP_ADDRESS + SERVER_PORT + "/ping",
-      SERVER_COMPILE_URL = SERVER_IP_ADDRESS + SERVER_PORT + "/exec";
+//  public static final String
+//      CHARSET = "UTF-8",
+//      SERVER_PROTOCOL = "http://",
+//      SERVER_IP_ADDRESS = SERVER_PROTOCOL + "10.0.2.2",
+//      SERVER_PORT = ":8888",
+////      SERVER_PING_URL = SERVER_IP_ADDRESS + SERVER_PORT + "/ping",
+//      SERVER_COMPILE_URL = SERVER_IP_ADDRESS + SERVER_PORT + "/exec";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +29,7 @@ public class CompileActivity extends AppCompatActivity {
 
     Intent intent = getIntent();
     final String content = intent.getStringExtra("content");
-    final String fileType = intent.getStringExtra("fileType");
+    final FileType fileType = new FileType(intent.getStringExtra("fileType"), intent.getStringExtra("fileExt"));
 
 
     Button saveBtn = findViewById(R.id.save_button);
@@ -53,7 +54,7 @@ public class CompileActivity extends AppCompatActivity {
 //        uploadFile.doZip(content);
 
 //        new AsyncCompileRequest(CompileActivity.this, SERVER_COMPILE_URL, uploadFile, fileType, CHARSET).execute();
-        AsyncCompileRequest ac = new AsyncCompileRequest(CompileActivity.this, SERVER_COMPILE_URL, content, fileType, CHARSET);
+        AsyncCompileRequest ac = new AsyncCompileRequest(CompileActivity.this, content, fileType.getType());
         ac.setResultTextView(execResultTv);
         ac.execute();
 

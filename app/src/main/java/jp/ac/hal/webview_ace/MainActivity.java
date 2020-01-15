@@ -14,21 +14,24 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import jp.ac.hal.database.FileType;
+import jp.ac.hal.database.FileTypeTable;
+import jp.ac.hal.database.SQLiteOpener;
 
 public class MainActivity extends AppCompatActivity {
 
-  AceEditorView aceView;
-  String fileTypeName;
-  String filePath;
+  private AceEditorView aceView;
+  private FileType fileType;
 
   public static final int
       REQUEST_PERMISSION_CODE = 1212,
       OPEN_REQUEST_CODE = 1,
-      COMPILE_REQUEST_CODE = 2,
-      SAVE_FILE_CODE = 3;
+//      SAVE_FILE_CODE = 2,
+      COMPILE_REQUEST_CODE = 3;
 
+  private FileTypeTable table;
 
   private void requestStoragePermission() {
     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -60,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    SQLiteOpener opener = new SQLiteOpener(this);
+    this.table = new FileTypeTable(opener.getWritableDatabase());
+
     if (!this.havePermission()) {
       requestStoragePermission();
     }
@@ -85,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         saveRunBtn.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-            if (fileTypeName != null && !fileTypeName.isEmpty() && !fileTypeName.equals("ERROR")) {
+            if (fileType != null) {
               aceView.fetchContent();
               // jsが非同期に実行されるため, 若干遅らせる
               new Handler().postDelayed(new Runnable() {
@@ -93,7 +99,8 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                   Intent compileIntent = new Intent(MainActivity.this, CompileActivity.class);
                   compileIntent.putExtra("content", aceView.getContent());
-                  compileIntent.putExtra("fileType", fileTypeName);
+                  compileIntent.putExtra("fileType", fileType.getType());
+                  compileIntent.putExtra("fileExt", fileType.getExt());
                   startActivityForResult(compileIntent, COMPILE_REQUEST_CODE);
                 }
               }, 500);
@@ -111,27 +118,27 @@ public class MainActivity extends AppCompatActivity {
     switch (requestCode) {
       case OPEN_REQUEST_CODE:
         if (resultCode == RESULT_OK) {
-          this.fileTypeName = data.getStringExtra("FILE_TYPE_NAME");
+//          this.fileTypeName = data.getStringExtra("FILE_TYPE");
+          this.fileType = new FileType(data.getStringExtra("FILE_TYPE"), data.getStringExtra("FILE_EXT"));
           int openType = data.getIntExtra("OPEN_TYPE", OpenActivity.OPEN_TYPE_ERR);
+          String filePath;
           if (openType == OpenActivity.OPEN_TYPE_OPEN) {
-            this.filePath = data.getStringExtra("OPEN_FILE");
-            SourceFile sourceFile = new SourceFile(this.filePath);
-            this.fileTypeName = sourceFile.getFileType();
+            filePath = data.getStringExtra("OPEN_FILE");
+            SourceFile sourceFile = new SourceFile(filePath);
+            this.fileType = this.table.getTypeFromExt(sourceFile.getFileExt());
             this.aceView.setContent(sourceFile.readSource());
-          } else {
-            this.filePath = "";
           }
         } else {
-          this.fileTypeName = "ERROR";
+          this.fileType = null;
         }
         break;
       case COMPILE_REQUEST_CODE:
         break;
-      default:
-        break;
     }
-    if (!this.fileTypeName.equals("ERROR")) {
-      this.aceView.setFileType(this.fileTypeName);
+    if (this.fileType != null) {
+      this.aceView.setFileType(this.fileType.getType());
+    } else {
+      this.aceView.setFileType("plaintext");
     }
   }
 

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
@@ -13,40 +14,52 @@ import android.widget.Spinner;
 import com.developer.filepicker.controller.DialogSelectionListener;
 import com.developer.filepicker.view.FilePickerDialog;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import jp.ac.hal.database.FileType;
+import jp.ac.hal.database.FileTypeTable;
+import jp.ac.hal.database.SQLiteOpener;
 import jp.ac.hal.file_picker.FilePicker;
-import jp.ac.hal.spinner.KeyValueAdapter;
-import jp.ac.hal.spinner.SpinnerHelper;
 
-public class OpenActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class OpenActivity extends AppCompatActivity {
 
-  private String selectedFileTypeName;
-
-  public Map returnMap;
-  private EditText fileEt;
-  String selectedPath;
   public static final int
       OPEN_TYPE_ERR = -1,
       OPEN_TYPE_NEW = 0,
       OPEN_TYPE_OPEN = 1;
+  String selectedPath;
+  private EditText fileEt;
+  private Spinner sp;
+  private FileTypeTable table;
+  private FileType spinnerFileType;
+  private FileType openFileType;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_open);
 
-    this.returnMap = new HashMap<String, String>();
-
     Button nextBt = findViewById(R.id.button2);
     final Button selectBt = findViewById(R.id.button4);
     this.fileEt = findViewById(R.id.editText2);
-    final Spinner sp = findViewById(R.id.spinner);
+
+    SQLiteOpener opener = new SQLiteOpener(this);
+    this.table = new FileTypeTable(opener.getReadableDatabase());
+    this.sp = findViewById(R.id.spinner);
+    ArrayAdapter<FileType> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, this.table.getAllTypes());
+    this.sp.setAdapter(adapter);
+
     final Intent intent = new Intent();
     final RadioGroup radioGroup = findViewById(R.id.radioGroupOpen);
 
-    sp.setOnItemSelectedListener(this);
+    this.sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+        spinnerFileType = (FileType) sp.getSelectedItem();
+      }
+
+      @Override
+      public void onNothingSelected(AdapterView<?> adapterView) {
+      }
+    });
 
     radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
       @Override
@@ -91,11 +104,14 @@ public class OpenActivity extends AppCompatActivity implements AdapterView.OnIte
         switch (radioGroup.getCheckedRadioButtonId()) {
           case R.id.radioNewFile:
             intent.putExtra("OPEN_TYPE", OPEN_TYPE_NEW);
-            intent.putExtra("FILE_TYPE_NAME", selectedFileTypeName);
+            intent.putExtra("FILE_TYPE", spinnerFileType.getType());
+            intent.putExtra("FILE_EXT", spinnerFileType.getExt());
             break;
           case R.id.radioOpenFile:
+            OpenActivity.this.setOpenFileType();
             intent.putExtra("OPEN_TYPE", OPEN_TYPE_OPEN);
-            intent.putExtra("FILE_TYPE_NAME", OpenActivity.this.getSuffix(selectedPath));
+            intent.putExtra("FILE_TYPE", openFileType.getType());
+            intent.putExtra("FILE_EXT", openFileType.getExt());
             intent.putExtra("OPEN_FILE", selectedPath);
             break;
           default:
@@ -105,30 +121,18 @@ public class OpenActivity extends AppCompatActivity implements AdapterView.OnIte
         OpenActivity.this.finish();
       }
     });
-
-    KeyValueAdapter adapter = SpinnerHelper.getKeyValueAdapter(this, getResources(), R.array.file_type_data);
-    sp.setAdapter(adapter);
-
   }
 
-  @Override
-  public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-    this.selectedFileTypeName = adapterView.getSelectedItem().toString();
-  }
-
-  @Override
-  public void onNothingSelected(AdapterView<?> parent) {
-
-  }
-
-  private String getSuffix(String fileName) {
-    if (fileName == null) {
-      return null;
+  private void setOpenFileType() {
+    if (this.selectedPath == null || this.selectedPath.equals("")) {
+      this.openFileType = null;
+    } else {
+      int point = this.selectedPath.lastIndexOf(".");
+      if (point != -1) {
+        this.openFileType = this.table.getTypeFromExt(this.selectedPath.substring((point + 1)));
+      } else {
+        this.openFileType = null;
+      }
     }
-    int point = fileName.lastIndexOf(".");
-    if (point != -1) {
-      return fileName.substring(point + 1);
-    }
-    return null;
   }
 }
