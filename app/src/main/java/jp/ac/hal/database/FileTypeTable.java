@@ -35,7 +35,7 @@ public class FileTypeTable {
   }
 
   @Nullable
-  public FileType getTypeFromType(String type) {
+  public FileType getExtFromType(String type) {
     return getType("type", type);
   }
 
@@ -47,8 +47,9 @@ public class FileTypeTable {
   @Nullable
   private FileType getType(String selection, String arg) {
     FileType ft = null;
+    selection = selection + " = ?";
     try (
-        Cursor cursor = this.db.query(TABLE_NAME, null, selection + " = ?", new String[]{arg}, null, null, null)
+        Cursor cursor = this.db.query(true, TABLE_NAME, null, selection, new String[]{arg}, null, null, null, null)
     ) {
       if (cursor.moveToFirst()) {
         ft = new FileType(
@@ -61,7 +62,7 @@ public class FileTypeTable {
     return ft;
   }
 
-  public FileType[] getAllTypes() {
+  public ArrayList<FileType> getAllTypes() {
     ArrayList<FileType> data = new ArrayList<>();
     try (
         Cursor cursor = this.db.query(TABLE_NAME, null, null, null, null, null, null)
@@ -76,9 +77,7 @@ public class FileTypeTable {
         b = cursor.moveToNext();
       }
     }
-    FileType[] resArray = new FileType[data.size()];
-    data.toArray(resArray);
-    return resArray;
+    return data;
   }
 
   public void setData() throws SQLException {

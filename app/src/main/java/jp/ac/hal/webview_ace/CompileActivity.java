@@ -1,19 +1,25 @@
 package jp.ac.hal.webview_ace;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import jp.ac.hal.Token.TokenManager;
 import jp.ac.hal.database.FileType;
 import jp.ac.hal.remote_compile_client.AsyncCompileRequest;
+import jp.ac.hal.remote_compile_client.AsyncGistRequest;
 //import jp.ac.hal.remote_compile_client.CacheDir;
 
 public class CompileActivity extends AppCompatActivity {
 
+  private TokenManager tokenManager;
+  private static final String GITHUB_TOKEN_URI = "https://github.com/settings/tokens";
 //  public static final String
 //      CHARSET = "UTF-8",
 //      SERVER_PROTOCOL = "http://",
@@ -29,12 +35,48 @@ public class CompileActivity extends AppCompatActivity {
 
     Intent intent = getIntent();
     final String content = intent.getStringExtra("content");
-    final FileType fileType = new FileType(intent.getStringExtra("fileType"), intent.getStringExtra("fileExt"));
+    final FileType fileType = (FileType) intent.getSerializableExtra("fileType");
 
+    TextView extTv = findViewById(R.id.comp_ext);
+    final String ext = "." + fileType.getExt();
+    extTv.setText(ext);
+
+    this.tokenManager = new TokenManager(getPreferences(MODE_PRIVATE));
+    final EditText tokenEt = findViewById(R.id.compile_token_input);
+    tokenEt.setText(this.tokenManager.GetToken());
 
     Button saveBtn = findViewById(R.id.save_button);
     Button runBtn = findViewById(R.id.run_button);
+    Button gistBtn = findViewById(R.id.gist_button);
+    Button tokenSaveBtn = findViewById(R.id.comp_token_save_button);
     final TextView execResultTv = findViewById(R.id.exec_result);
+
+    findViewById(R.id.comp_github_link).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        Uri uri = Uri.parse(GITHUB_TOKEN_URI);
+        Intent i = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(i);
+      }
+    });
+
+    tokenSaveBtn.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        tokenManager.SaveToken(tokenEt.getText().toString());
+        Toast.makeText(CompileActivity.this, "トークンを保存しました。", Toast.LENGTH_SHORT).show();
+      }
+    });
+
+    gistBtn.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        EditText fileNameEt = findViewById(R.id.comp_file_name);
+        String fileName = fileNameEt.getText().toString() + ext;
+        AsyncGistRequest gistRequest = new AsyncGistRequest(CompileActivity.this, content, fileName, tokenManager.GetToken());
+        gistRequest.execute();
+      }
+    });
 
     saveBtn.setOnClickListener(new View.OnClickListener() {
       @Override

@@ -31,8 +31,6 @@ public class MainActivity extends AppCompatActivity {
 //      SAVE_FILE_CODE = 2,
       COMPILE_REQUEST_CODE = 3;
 
-  private FileTypeTable table;
-
   private void requestStoragePermission() {
     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
       Toast.makeText(this, "許可されないとファイルを保存できません", Toast.LENGTH_SHORT).show();
@@ -62,9 +60,6 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-
-    SQLiteOpener opener = new SQLiteOpener(this);
-    this.table = new FileTypeTable(opener.getWritableDatabase());
 
     if (!this.havePermission()) {
       requestStoragePermission();
@@ -99,8 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                   Intent compileIntent = new Intent(MainActivity.this, CompileActivity.class);
                   compileIntent.putExtra("content", aceView.getContent());
-                  compileIntent.putExtra("fileType", fileType.getType());
-                  compileIntent.putExtra("fileExt", fileType.getExt());
+                  compileIntent.putExtra("fileType", fileType);
                   startActivityForResult(compileIntent, COMPILE_REQUEST_CODE);
                 }
               }, 500);
@@ -118,15 +112,10 @@ public class MainActivity extends AppCompatActivity {
     switch (requestCode) {
       case OPEN_REQUEST_CODE:
         if (resultCode == RESULT_OK) {
-//          this.fileTypeName = data.getStringExtra("FILE_TYPE");
-          this.fileType = new FileType(data.getStringExtra("FILE_TYPE"), data.getStringExtra("FILE_EXT"));
+          this.fileType = (FileType) data.getSerializableExtra("FILE_TYPE");
           int openType = data.getIntExtra("OPEN_TYPE", OpenActivity.OPEN_TYPE_ERR);
-          String filePath;
           if (openType == OpenActivity.OPEN_TYPE_OPEN) {
-            filePath = data.getStringExtra("OPEN_FILE");
-            SourceFile sourceFile = new SourceFile(filePath);
-            this.fileType = this.table.getTypeFromExt(sourceFile.getFileExt());
-            this.aceView.setContent(sourceFile.readSource());
+            this.aceView.setContent((new SourceFile(data.getStringExtra("OPEN_FILE"))).readSource());
           }
         } else {
           this.fileType = null;

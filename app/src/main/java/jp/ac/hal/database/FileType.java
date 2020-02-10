@@ -2,7 +2,9 @@ package jp.ac.hal.database;
 
 import android.support.annotation.NonNull;
 
-public class FileType {
+import java.io.Serializable;
+
+public class FileType implements Serializable {
 
   private int id;
   private String type;
@@ -29,11 +31,14 @@ public class FileType {
   }
 
   public String getType() {
-    return type;
+    return this.type;
   }
 
   public String getExt() {
-    return ext;
+    return this.ext;
   }
 
+  public int getId() {
+    return this.id;
+  }
 }

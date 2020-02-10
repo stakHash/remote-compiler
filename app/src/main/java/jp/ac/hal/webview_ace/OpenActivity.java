@@ -104,14 +104,12 @@ public class OpenActivity extends AppCompatActivity {
         switch (radioGroup.getCheckedRadioButtonId()) {
           case R.id.radioNewFile:
             intent.putExtra("OPEN_TYPE", OPEN_TYPE_NEW);
-            intent.putExtra("FILE_TYPE", spinnerFileType.getType());
-            intent.putExtra("FILE_EXT", spinnerFileType.getExt());
+            intent.putExtra("FILE_TYPE", spinnerFileType);
             break;
           case R.id.radioOpenFile:
             OpenActivity.this.setOpenFileType();
             intent.putExtra("OPEN_TYPE", OPEN_TYPE_OPEN);
-            intent.putExtra("FILE_TYPE", openFileType.getType());
-            intent.putExtra("FILE_EXT", openFileType.getExt());
+            intent.putExtra("FILE_TYPE", openFileType);
             intent.putExtra("OPEN_FILE", selectedPath);
             break;
           default:

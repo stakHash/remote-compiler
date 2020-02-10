@@ -7,10 +7,13 @@
     tools:context=".CompileActivity">
 
     <TextView
-        android:id="@+id/preview"
+        android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="preview" />
+        android:background="@color/colorHeader"
+        android:textColor="#f0f0f0"
+        android:text="保存"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,36 +24,113 @@
             android:id="@+id/textView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="exec args:" />
+            android:padding="5dp"
+            android:text="ファイル名:" />
 
         <EditText
-            android:id="@+id/editText"
+            android:id="@+id/comp_file_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:inputType="textPersonName"
+            android:hint=""
+            android:text="" />
+
+        <TextView
+            android:id="@+id/comp_ext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="[ext]"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:text="GitHub Token: "
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/compile_token_input"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
-            android:inputType="textPersonName"
-            android:text="args" />
+            android:hint="GitHub token"
+            android:inputType="text" />
 
+        <Button
+            android:id="@+id/comp_token_save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="トークンを保存" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/save_button"
+    <TextView
+        android:id="@+id/comp_github_link"
+        android:gravity="center"
+        android:layout_marginTop="3dp"
+        android:layout_marginBottom="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="SAVE" />
+        android:textColor="#5050f0"
+        android:text="(ブラウザでGitHub.comを開く)" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/gist_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:text="Gistアップロード" />
+
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="端末に保存" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/preview_tag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorHeader"
+        android:layout_marginTop="30dp"
+        android:text="実行"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="#f0f0f0" />
+
+    <TextView
+        android:id="@+id/preview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:padding="10dp"
+        android:text="[prev]" />
 
     <Button
         android:id="@+id/run_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="RUN" />
+        android:text="実行" />
 
     <TextView
         android:id="@+id/exec_result"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="exec_result" />
+        android:padding="10dp"
+        android:text="[exec_result]" />
 
 </LinearLayout>

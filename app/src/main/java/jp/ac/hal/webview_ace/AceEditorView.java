@@ -46,30 +46,43 @@ public class AceEditorView extends WebView {
   }
 
   public void setContent(String content) {
+    content = this.sanitize_toJs(content);
     loadUrl("javascript:setText('" + content + "');");
   }
 
-  public String getContent() {
-    return this.cleanContent();
+  private String sanitize_toJs(String content) {
+    String regDoubleQ = Pattern.quote("\"");
+    String regSingleQ = Pattern.quote("\'");
+    String regNl = Pattern.quote(LINE_SEPARATOR);
+    String regStrNl = Pattern.quote("\\n");
+    return content
+        .replaceAll(regDoubleQ, "\\\"")
+        .replaceAll(regSingleQ, "\\\'")
+        .replaceAll(regStrNl, "\\\\\n")
+        .replaceAll(regNl, "\\\\n");
   }
 
-  private String cleanContent() {
+  public String getContent() {
+    return this.sanitize_toJava();
+  }
+
+  private String sanitize_toJava() {
     int length = this.content.length();
     String tmp = this.content.substring(1, length - 1);
     // \\n -> \n , \n -> line_separator
-    tmp = this.cleanNewLine(tmp);
+    tmp = this.jsToJava_NewLine(tmp);
     // \" -> ", \' -> '
-    tmp = this.cleanQuote(tmp);
+    tmp = this.jsToJava_Quote(tmp);
     return tmp;
   }
 
-  private String cleanQuote(String tmp) {
+  private String jsToJava_Quote(String tmp) {
     String regDoubleQuote = Pattern.quote("\\\"");
     String regSingleQuote = Pattern.quote("\\\'");
     return tmp.replaceAll(regDoubleQuote, "\"").replaceAll(regSingleQuote, "\'");
   }
 
-  private String cleanNewLine(String tmp) {
+  private String jsToJava_NewLine(String tmp) {
     String reg = Pattern.quote("\\\\n");
     tmp = tmp.replaceAll(reg, "\\\\N");
     // \n -> line_separator
