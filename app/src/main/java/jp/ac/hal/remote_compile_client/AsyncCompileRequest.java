@@ -3,13 +3,10 @@ package jp.ac.hal.remote_compile_client;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 
-import jp.ac.hal.webview_ace.CompileActivity;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -20,8 +17,16 @@ import okhttp3.Response;
 
 public class AsyncCompileRequest extends AsyncTask<Void, Void, String> {
 
-  private String requestURL;
-  private String charset;
+  private static final String
+      CHARSET = "UTF-8",
+      SERVER_PROTOCOL = "http://",
+      SERVER_IP_ADDRESS = SERVER_PROTOCOL + "10.0.2.2",
+      SERVER_PORT = ":8888",
+      SERVER_COMPILE_URL = SERVER_IP_ADDRESS + SERVER_PORT + "/exec";
+  //      SERVER_PING_URL = SERVER_IP_ADDRESS + SERVER_PORT + "/ping",
+
+  private static final MediaType MEDIA_TYPE_GZIP = MediaType.parse("application/gzip");
+
   private UploadFile uploadFile;
   private String fileType;
   private TextView resultTv;
@@ -29,28 +34,22 @@ public class AsyncCompileRequest extends AsyncTask<Void, Void, String> {
   private PostMultipart postMultipart;
   private String content;
 
-  public AsyncCompileRequest(Activity activity, String requestURL, String content, String fileType, String charset) {
-    this.requestURL = requestURL;
-    this.charset = charset;
+  public AsyncCompileRequest(Activity activity, String content, String fileType) {
     this.activity = activity;
     this.content = content;
     this.fileType = fileType;
   }
 
-  public AsyncCompileRequest(Activity activity, String requestURL, UploadFile uploadFile, String fileType, String charset) {
-    this.requestURL = requestURL;
-    this.charset = charset;
+  public AsyncCompileRequest(Activity activity, UploadFile uploadFile, String fileType) {
     this.activity = activity;
     this.uploadFile = uploadFile;
     this.fileType = fileType;
   }
 
-  // for ping/pong
-  public AsyncCompileRequest(Activity activity, String requestURL, String charset) {
-    this.requestURL = requestURL;
-    this.charset = charset;
-    this.activity = activity;
-  }
+//  // for ping/pong
+//  public AsyncCompileRequest(Activity activity) {
+//    this.activity = activity;
+//  }
 
   @Override
   protected String doInBackground(Void... voids) {
@@ -64,7 +63,7 @@ public class AsyncCompileRequest extends AsyncTask<Void, Void, String> {
 //      this.postMultipart.addField("content", this.content);
 //
 //      response = this.postMultipart.post();
-      response = this.postRawWithOkhttp(fileType, content);
+      response = this.postRawWithOkHttp(fileType, content);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -83,17 +82,16 @@ public class AsyncCompileRequest extends AsyncTask<Void, Void, String> {
     this.resultTv = tv;
   }
 
-  private String postGzWithOkhttp(String fileType, UploadFile uploadFile) throws Exception {
+  private String postGzWithOkHttp(String fileType, UploadFile uploadFile) throws Exception {
     OkHttpClient client = new OkHttpClient();
-    MediaType mediaType = MediaType.parse("application/gzip");
     @SuppressWarnings("deprecation") RequestBody requestBody = new MultipartBody.Builder()
         .setType(MultipartBody.FORM)
         .addFormDataPart("dataType", "archive")
         .addFormDataPart("fileType", fileType)
-        .addFormDataPart("file", "uploadedFile", RequestBody.create(mediaType, uploadFile.getGzFile()))
+        .addFormDataPart("file", "uploadedFile", RequestBody.create(MEDIA_TYPE_GZIP, uploadFile.getGzFile()))
         .build();
     Request request = new Request.Builder()
-        .url(CompileActivity.SERVER_COMPILE_URL)
+        .url(SERVER_COMPILE_URL)
         .post(requestBody)
         .build();
 
@@ -105,7 +103,7 @@ public class AsyncCompileRequest extends AsyncTask<Void, Void, String> {
 
   }
 
-  private String postRawWithOkhttp(String fileType, String content) throws Exception {
+  private String postRawWithOkHttp(String fileType, String content) throws Exception {
     OkHttpClient client = new OkHttpClient();
     RequestBody requestBody = new MultipartBody.Builder()
         .setType(MultipartBody.FORM)
@@ -114,7 +112,7 @@ public class AsyncCompileRequest extends AsyncTask<Void, Void, String> {
         .addFormDataPart("content", content)
         .build();
     Request request = new Request.Builder()
-        .url(CompileActivity.SERVER_COMPILE_URL)
+        .url(SERVER_COMPILE_URL)
         .post(requestBody)
         .build();
 

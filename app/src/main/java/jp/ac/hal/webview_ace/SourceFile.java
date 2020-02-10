@@ -9,18 +9,17 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.HashMap;
+
+import jp.ac.hal.database.FileType;
 
 public class SourceFile {
 
   private File sourceFile;
   private SourceDir sourceDir;
   private String content;
-  private String fileType;
-  private HashMap<String, String> fileExt;
+  private FileType fileType;
 
-  public SourceFile(SourceDir sourceDir, String fileType, String content) {
-    this.generateFileExt();
+  public SourceFile(SourceDir sourceDir, FileType fileType, String content) {
     this.setSourceDir(sourceDir);
     this.setContent(content);
     this.setFileType(fileType);
@@ -28,23 +27,16 @@ public class SourceFile {
   }
 
   public SourceFile(String path) {
-    this.generateFileExt();
     this.sourceFile = new File(path);
   }
 
-  private void generateFileExt() {
-    this.fileExt = new HashMap<>();
-    this.fileExt.put("golang", "go");
-    this.fileExt.put("java", "java");
-    this.fileExt.put("c_cpp", "cpp");
-  }
 
-  public String getFileType() {
+  String getFileExt() {
     int dotIndex = this.sourceFile.getName().indexOf(".");
     return this.sourceFile.getName().substring(dotIndex);
   }
 
-  public String readSource() {
+  String readSource() {
     StringBuilder str = new StringBuilder();
     String tmp;
     try (
@@ -60,7 +52,7 @@ public class SourceFile {
     return str.toString();
   }
 
-  private void setFileType(String fileType) {
+  private void setFileType(FileType fileType) {
     this.fileType = fileType;
   }
 
@@ -75,11 +67,11 @@ public class SourceFile {
   private void generateSourceFile() {
     Date d = new Date();
     long unixTime = d.getTime();
-    String fileName = unixTime + "." + this.fileExt.get(this.fileType);
+    String fileName = unixTime + "." + this.fileType.getExt();
     this.sourceFile = new File(this.sourceDir.getPath(), fileName);
   }
 
-  public void saveFile() {
+  void saveFile() {
     try (
         FileOutputStream fileOutputStream = new FileOutputStream(this.sourceFile, false);
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8);
