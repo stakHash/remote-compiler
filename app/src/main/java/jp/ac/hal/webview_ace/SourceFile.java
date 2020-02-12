@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.Date;
 
 import jp.ac.hal.database.FileType;
@@ -18,11 +19,13 @@ public class SourceFile {
   private SourceDir sourceDir;
   private String content;
   private FileType fileType;
+  private String fileName;
 
-  public SourceFile(SourceDir sourceDir, FileType fileType, String content) {
+  public SourceFile(SourceDir sourceDir, String fileName, FileType fileType, String content) {
     this.setSourceDir(sourceDir);
     this.setContent(content);
     this.setFileType(fileType);
+    this.fileName = fileName + "." + fileType.getExt();
     this.generateSourceFile();
   }
 
@@ -65,13 +68,26 @@ public class SourceFile {
   }
 
   private void generateSourceFile() {
-    Date d = new Date();
-    long unixTime = d.getTime();
-    String fileName = unixTime + "." + this.fileType.getExt();
-    this.sourceFile = new File(this.sourceDir.getPath(), fileName);
+    this.sourceFile = new File(this.sourceDir.getPath(), this.fileName);
   }
 
-  void saveFile() {
+  void overwriteFile() {
+    try (
+        FileOutputStream fileOutputStream = new FileOutputStream(this.sourceFile, false);
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8);
+        BufferedWriter bw = new BufferedWriter(outputStreamWriter)
+    ) {
+      bw.write(this.content);
+      bw.flush();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  void saveFile() throws FileAlreadyExistsException {
+    if (this.sourceFile.exists()) {
+      throw new FileAlreadyExistsException(this.fileName + " は既に存在しています。");
+    }
     try (
         FileOutputStream fileOutputStream = new FileOutputStream(this.sourceFile, false);
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8);
