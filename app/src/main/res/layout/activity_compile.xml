@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:text="ファイル名:" />
+            android:text="@string/file_name" />
 
         <EditText
             android:id="@+id/comp_file_name"
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:inputType="textPersonName"
-            android:hint=""
+            android:hint="@string/file_name_example"
             android:text="" />
 
         <TextView
@@ -125,12 +125,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="実行" />
-
-    <TextView
-        android:id="@+id/exec_result"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text="[exec_result]" />
 
 </LinearLayout>

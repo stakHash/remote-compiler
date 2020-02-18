@@ -1,3 +1,14 @@
 <resources>
-    <string name="app_name">webview_ace</string>
+    <string name="app_name">AnyEditor</string>
+    <string name="file_button">開く</string>
+    <string name="save_button">保存・テスト</string>
+    <string name="radio_create">新規ファイルの作成</string>
+    <string name="radio_open">既存ファイルを開く</string>
+    <string name="file_type">ファイルタイプ</string>
+    <string name="file_path">ファイルパス</string>
+    <string name="file_path_example">/path/to/file</string>
+    <string name="file_selection_button">参照</string>
+    <string name="close_open_activity">作成 / 開く</string>
+    <string name="file_name_example">awesomeProgram</string>
+    <string name="file_name">ファイル名:</string>
 </resources>

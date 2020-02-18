@@ -15,8 +15,9 @@ public class FileTypeTable {
   private static final String[][] FILE_TYPES = {
       {"golang", "go"},
       {"java", "java"},
+      {"python", "py"},
+      {"javascript", "js"},
 //      {"kotlin", "kt"},
-//      {"python", "py"},
   };
 
   private SQLiteDatabase db;

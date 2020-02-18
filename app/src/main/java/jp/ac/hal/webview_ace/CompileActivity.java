@@ -1,14 +1,19 @@
 package jp.ac.hal.webview_ace;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.nio.file.FileAlreadyExistsException;
 
 import jp.ac.hal.Token.TokenManager;
 import jp.ac.hal.database.FileType;
@@ -35,6 +40,7 @@ public class CompileActivity extends AppCompatActivity {
 
     Intent intent = getIntent();
     final String content = intent.getStringExtra("content");
+    final String fileName = intent.getStringExtra("fileName");
     final FileType fileType = (FileType) intent.getSerializableExtra("fileType");
 
     TextView extTv = findViewById(R.id.comp_ext);
@@ -49,7 +55,8 @@ public class CompileActivity extends AppCompatActivity {
     Button runBtn = findViewById(R.id.run_button);
     Button gistBtn = findViewById(R.id.gist_button);
     Button tokenSaveBtn = findViewById(R.id.comp_token_save_button);
-    final TextView execResultTv = findViewById(R.id.exec_result);
+    final EditText fileNameEt = findViewById(R.id.comp_file_name);
+    fileNameEt.setText(fileName);
 
     findViewById(R.id.comp_github_link).setOnClickListener(new View.OnClickListener() {
       @Override
@@ -64,14 +71,14 @@ public class CompileActivity extends AppCompatActivity {
       @Override
       public void onClick(View view) {
         tokenManager.SaveToken(tokenEt.getText().toString());
-        Toast.makeText(CompileActivity.this, "トークンを保存しました。", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(CompileActivity.this, "トークンを保存しました。", Toast.LENGTH_SHORT).show();
+        showDialog(CompileActivity.this, "トークン", "トークンを保存しました。", "OK");
       }
     });
 
     gistBtn.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        EditText fileNameEt = findViewById(R.id.comp_file_name);
         String fileName = fileNameEt.getText().toString() + ext;
         AsyncGistRequest gistRequest = new AsyncGistRequest(CompileActivity.this, content, fileName, tokenManager.GetToken());
         gistRequest.execute();
@@ -82,9 +89,26 @@ public class CompileActivity extends AppCompatActivity {
       @Override
       public void onClick(View v) {
         SourceDir sourceDir = new SourceDir();
-        SourceFile sourceFile = new SourceFile(sourceDir, fileType, content);
-        sourceFile.saveFile();
-        Toast.makeText(CompileActivity.this, "saved source file", Toast.LENGTH_SHORT).show();
+        final SourceFile sourceFile = new SourceFile(sourceDir, fileNameEt.getText().toString(),fileType, content);
+        try {
+          sourceFile.saveFile();
+//          Toast.makeText(CompileActivity.this, "ファイルを保存しました。", Toast.LENGTH_SHORT).show();
+          showDialog(CompileActivity.this, "ファイル", "ファイルを保存しました。", "OK");
+        } catch (FileAlreadyExistsException e) {
+          new AlertDialog.Builder(CompileActivity.this)
+              .setTitle("上書き確認")
+              .setMessage(e.getMessage() + "\n上書きしますか？")
+              .setPositiveButton("はい", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                  sourceFile.overwriteFile();
+//                  Toast.makeText(CompileActivity.this, "ファイルを保存しました。", Toast.LENGTH_SHORT).show();
+                  showDialog(CompileActivity.this, "ファイル", "ファイルを保存しました。", "OK");
+                }
+              })
+              .setNegativeButton("キャンセル", null)
+              .show();
+        }
       }
     });
 
@@ -97,7 +121,6 @@ public class CompileActivity extends AppCompatActivity {
 
 //        new AsyncCompileRequest(CompileActivity.this, SERVER_COMPILE_URL, uploadFile, fileType, CHARSET).execute();
         AsyncCompileRequest ac = new AsyncCompileRequest(CompileActivity.this, content, fileType.getType());
-        ac.setResultTextView(execResultTv);
         ac.execute();
 
         // debug (ping/pong)
@@ -108,6 +131,14 @@ public class CompileActivity extends AppCompatActivity {
     TextView previewTV = findViewById(R.id.preview);
 
     previewTV.setText(content);
+  }
+
+  private void showDialog(Context context, String title, String message, String positiveButton) {
+    new AlertDialog.Builder(context)
+        .setTitle(title)
+        .setMessage(message)
+        .setPositiveButton(positiveButton, null)
+        .show();
   }
 
 }
