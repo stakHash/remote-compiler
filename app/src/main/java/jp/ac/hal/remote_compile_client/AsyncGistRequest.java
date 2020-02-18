@@ -1,6 +1,10 @@
 package jp.ac.hal.remote_compile_client;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
@@ -11,7 +15,7 @@ import org.eclipse.egit.github.core.service.GistService;
 import java.io.IOException;
 import java.util.Collections;
 
-public class AsyncGistRequest extends AsyncTask<Void, Void, Boolean> {
+public class AsyncGistRequest extends AsyncTask<Void, Void, Gist> {
 
   private Context parent;
   private String content;
@@ -26,7 +30,13 @@ public class AsyncGistRequest extends AsyncTask<Void, Void, Boolean> {
   }
 
   @Override
-  protected Boolean doInBackground(Void... voids) {
+  protected void onPreExecute() {
+    super.onPreExecute();
+    Toast.makeText(this.parent, "サーバの応答を待っています...", Toast.LENGTH_LONG).show();
+  }
+
+  @Override
+  protected Gist doInBackground(Void... voids) {
     GistFile gistFile = new GistFile();
     Gist gist = new Gist();
     gistFile.setContent(this.content);
@@ -35,23 +45,33 @@ public class AsyncGistRequest extends AsyncTask<Void, Void, Boolean> {
     GistService service = new GistService();
     service.getClient().setOAuth2Token(this.token);
     try {
-      service.createGist(gist);
-      return true;
+      return service.createGist(gist);
     } catch (IOException e) {
       e.printStackTrace();
-      return false;
+      return null;
     }
   }
 
   @Override
-  protected void onPostExecute(Boolean b) {
-    super.onPostExecute(b);
+  protected void onPostExecute(Gist gist) {
+    super.onPostExecute(gist);
     String msg;
-    if (b) {
-      msg = "アップロードに成功しました。";
+    AlertDialog.Builder builder = new AlertDialog.Builder(this.parent)
+        .setTitle("アップロード")
+        .setPositiveButton("OK", null);
+    if (gist != null) {
+      final String url = gist.getHtmlUrl();
+      builder.setNeutralButton("ブラウザで開く", new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialogInterface, int i) {
+          parent.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        }
+      });
+      msg = "アップロードに成功しました。\nURL: " + url;
     } else {
       msg = "アップロードに失敗しました。";
     }
-    Toast.makeText(this.parent, msg, Toast.LENGTH_SHORT).show();
+    builder.setMessage(msg);
+    builder.show();
   }
 }

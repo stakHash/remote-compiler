@@ -111,6 +111,7 @@ public class OpenActivity extends AppCompatActivity {
             intent.putExtra("OPEN_TYPE", OPEN_TYPE_OPEN);
             intent.putExtra("FILE_TYPE", openFileType);
             intent.putExtra("OPEN_FILE", selectedPath);
+            intent.putExtra("OPEN_FILE_NAME", getFileName());
             break;
           default:
             break;
@@ -119,6 +120,12 @@ public class OpenActivity extends AppCompatActivity {
         OpenActivity.this.finish();
       }
     });
+  }
+
+  private String getFileName() {
+    int lastSlash = this.selectedPath.lastIndexOf("/");
+    int point = this.selectedPath.lastIndexOf(".");
+    return this.selectedPath.substring(lastSlash + 1, point);
   }
 
   private void setOpenFileType() {

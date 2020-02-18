@@ -17,13 +17,12 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import jp.ac.hal.database.FileType;
-import jp.ac.hal.database.FileTypeTable;
-import jp.ac.hal.database.SQLiteOpener;
 
 public class MainActivity extends AppCompatActivity {
 
   private AceEditorView aceView;
   private FileType fileType;
+  private String fileName;
 
   public static final int
       REQUEST_PERMISSION_CODE = 1212,
@@ -60,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    this.fileName = "";
 
     if (!this.havePermission()) {
       requestStoragePermission();
@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
                   Intent compileIntent = new Intent(MainActivity.this, CompileActivity.class);
                   compileIntent.putExtra("content", aceView.getContent());
                   compileIntent.putExtra("fileType", fileType);
+                  compileIntent.putExtra("fileName", fileName);
                   startActivityForResult(compileIntent, COMPILE_REQUEST_CODE);
                 }
               }, 500);
@@ -116,9 +117,8 @@ public class MainActivity extends AppCompatActivity {
           int openType = data.getIntExtra("OPEN_TYPE", OpenActivity.OPEN_TYPE_ERR);
           if (openType == OpenActivity.OPEN_TYPE_OPEN) {
             this.aceView.setContent((new SourceFile(data.getStringExtra("OPEN_FILE"))).readSource());
+            this.fileName = data.getStringExtra("OPEN_FILE_NAME");
           }
-        } else {
-          this.fileType = null;
         }
         break;
       case COMPILE_REQUEST_CODE:

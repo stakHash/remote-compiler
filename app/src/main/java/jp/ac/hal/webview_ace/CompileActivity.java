@@ -1,5 +1,6 @@
 package jp.ac.hal.webview_ace;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -39,6 +40,7 @@ public class CompileActivity extends AppCompatActivity {
 
     Intent intent = getIntent();
     final String content = intent.getStringExtra("content");
+    final String fileName = intent.getStringExtra("fileName");
     final FileType fileType = (FileType) intent.getSerializableExtra("fileType");
 
     TextView extTv = findViewById(R.id.comp_ext);
@@ -53,8 +55,8 @@ public class CompileActivity extends AppCompatActivity {
     Button runBtn = findViewById(R.id.run_button);
     Button gistBtn = findViewById(R.id.gist_button);
     Button tokenSaveBtn = findViewById(R.id.comp_token_save_button);
-    final TextView execResultTv = findViewById(R.id.exec_result);
     final EditText fileNameEt = findViewById(R.id.comp_file_name);
+    fileNameEt.setText(fileName);
 
     findViewById(R.id.comp_github_link).setOnClickListener(new View.OnClickListener() {
       @Override
@@ -69,7 +71,8 @@ public class CompileActivity extends AppCompatActivity {
       @Override
       public void onClick(View view) {
         tokenManager.SaveToken(tokenEt.getText().toString());
-        Toast.makeText(CompileActivity.this, "トークンを保存しました。", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(CompileActivity.this, "トークンを保存しました。", Toast.LENGTH_SHORT).show();
+        showDialog(CompileActivity.this, "トークン", "トークンを保存しました。", "OK");
       }
     });
 
@@ -89,7 +92,8 @@ public class CompileActivity extends AppCompatActivity {
         final SourceFile sourceFile = new SourceFile(sourceDir, fileNameEt.getText().toString(),fileType, content);
         try {
           sourceFile.saveFile();
-          Toast.makeText(CompileActivity.this, "ファイルを保存しました。", Toast.LENGTH_SHORT).show();
+//          Toast.makeText(CompileActivity.this, "ファイルを保存しました。", Toast.LENGTH_SHORT).show();
+          showDialog(CompileActivity.this, "ファイル", "ファイルを保存しました。", "OK");
         } catch (FileAlreadyExistsException e) {
           new AlertDialog.Builder(CompileActivity.this)
               .setTitle("上書き確認")
@@ -98,7 +102,8 @@ public class CompileActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                   sourceFile.overwriteFile();
-                  Toast.makeText(CompileActivity.this, "ファイルを保存しました。", Toast.LENGTH_SHORT).show();
+//                  Toast.makeText(CompileActivity.this, "ファイルを保存しました。", Toast.LENGTH_SHORT).show();
+                  showDialog(CompileActivity.this, "ファイル", "ファイルを保存しました。", "OK");
                 }
               })
               .setNegativeButton("キャンセル", null)
@@ -116,7 +121,6 @@ public class CompileActivity extends AppCompatActivity {
 
 //        new AsyncCompileRequest(CompileActivity.this, SERVER_COMPILE_URL, uploadFile, fileType, CHARSET).execute();
         AsyncCompileRequest ac = new AsyncCompileRequest(CompileActivity.this, content, fileType.getType());
-        ac.setResultTextView(execResultTv);
         ac.execute();
 
         // debug (ping/pong)
@@ -127,6 +131,14 @@ public class CompileActivity extends AppCompatActivity {
     TextView previewTV = findViewById(R.id.preview);
 
     previewTV.setText(content);
+  }
+
+  private void showDialog(Context context, String title, String message, String positiveButton) {
+    new AlertDialog.Builder(context)
+        .setTitle(title)
+        .setMessage(message)
+        .setPositiveButton(positiveButton, null)
+        .show();
   }
 
 }
