@@ -73,6 +73,8 @@ public class AceEditorView extends WebView {
     tmp = this.jsToJava_NewLine(tmp);
     // \" -> ", \' -> '
     tmp = this.jsToJava_Quote(tmp);
+    // \u003C -> <
+    tmp = this.jsToJava_Less(tmp);
     return tmp;
   }
 
@@ -80,6 +82,11 @@ public class AceEditorView extends WebView {
     String regDoubleQuote = Pattern.quote("\\\"");
     String regSingleQuote = Pattern.quote("\\\'");
     return tmp.replaceAll(regDoubleQuote, "\"").replaceAll(regSingleQuote, "\'");
+  }
+
+  private String jsToJava_Less(String tmp) {
+    String reg = Pattern.quote("\\u003C");
+    return tmp.replaceAll(reg, "<");
   }
 
   private String jsToJava_NewLine(String tmp) {
