@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.developer.filepicker.controller.DialogSelectionListener;
 import com.developer.filepicker.view.FilePickerDialog;
@@ -25,7 +26,7 @@ public class OpenActivity extends AppCompatActivity {
       OPEN_TYPE_ERR = -1,
       OPEN_TYPE_NEW = 0,
       OPEN_TYPE_OPEN = 1;
-  String selectedPath;
+  private String selectedPath;
   private EditText fileEt;
   private Spinner sp;
   private FileTypeTable table;
@@ -107,12 +108,18 @@ public class OpenActivity extends AppCompatActivity {
             intent.putExtra("FILE_TYPE", spinnerFileType);
             break;
           case R.id.radioOpenFile:
-            OpenActivity.this.setOpenFileType();
-            intent.putExtra("OPEN_TYPE", OPEN_TYPE_OPEN);
-            intent.putExtra("FILE_TYPE", openFileType);
-            intent.putExtra("OPEN_FILE", selectedPath);
-            intent.putExtra("OPEN_FILE_NAME", getFileName());
-            break;
+            selectedPath = fileEt.getText().toString();
+            if (selectedPath.equals("")) {
+              Toast.makeText(OpenActivity.this, "ファイルを指定してください", Toast.LENGTH_SHORT).show();
+              return;
+            } else {
+              OpenActivity.this.setOpenFileType();
+              intent.putExtra("OPEN_TYPE", OPEN_TYPE_OPEN);
+              intent.putExtra("FILE_TYPE", openFileType);
+              intent.putExtra("OPEN_FILE", selectedPath);
+              intent.putExtra("OPEN_FILE_NAME", getFileName());
+              break;
+            }
           default:
             break;
         }

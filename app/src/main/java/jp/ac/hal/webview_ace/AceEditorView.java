@@ -89,6 +89,28 @@ public class AceEditorView extends WebView {
     return tmp.replaceAll(reg, "<");
   }
 
+  /*
+    コード  -> app  -> Java
+    改行    -> \n   -> \\n
+    \n      -> \\n  -> \\\\n
+    \       -> \\   -> \\\\
+    \\      -> \\\\ -> \\\\\\\\ (*8)
+   */
+
+  private String jsToJava_backslash(String raw) {
+    String regNl = "[^\\\\]\\\\n";
+    String tmpNl = "@@@NEWLINE@@@";
+    String regTmpNl = Pattern.quote(tmpNl);
+    String reg = Pattern.quote("\\\\");
+    String tmpDoubleBS = "@@@DOUBLEBACKSLASH@@@";
+    String regTmp = Pattern.quote(tmpDoubleBS);
+    raw = raw.replaceAll(regNl, tmpNl);
+    raw = raw.replaceAll(reg, tmpDoubleBS);
+    raw = raw.replaceAll(regTmp, "\\");
+//    raw = raw.replaceAll(regTmpNl, "\n");
+    return raw;
+  }
+
   private String jsToJava_NewLine(String tmp) {
     String reg = Pattern.quote("\\\\n");
     tmp = tmp.replaceAll(reg, "\\\\N");
@@ -97,7 +119,9 @@ public class AceEditorView extends WebView {
     tmp = tmp.replaceAll(reg, LINE_SEPARATOR);
     // \N -> \n
     reg = Pattern.quote("\\N");
-    return tmp.replaceAll(reg, "\\\\n");
+    tmp = tmp.replaceAll(reg, "\\\\n");
+    reg = Pattern.quote("\\\\");
+    return tmp.replaceAll(reg, "\\\\");
   }
 
 }

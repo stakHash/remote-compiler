@@ -21,9 +21,9 @@ public class AsyncCompileRequest extends AsyncTask<Void, Void, String> {
   private static final String
       CHARSET = "UTF-8",
       SERVER_PROTOCOL = "http://",
-//      SERVER_IP_ADDRESS = SERVER_PROTOCOL + "10.0.2.2",
+      SERVER_IP_ADDRESS = SERVER_PROTOCOL + "10.0.2.2",
 //      SERVER_IP_ADDRESS = "192.168.100.2",
-    SERVER_IP_ADDRESS = "10.192.129.9",
+//    SERVER_IP_ADDRESS = "10.192.109.1",
     SERVER_PORT = ":8887",
       SERVER_COMPILE_URL = SERVER_PROTOCOL + SERVER_IP_ADDRESS + SERVER_PORT + "/exec";
   //      SERVER_PING_URL = SERVER_IP_ADDRESS + SERVER_PORT + "/ping",
